@@ -1,18 +1,43 @@
-<style>
-    /* 加入粉圓體 */
-    @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700&display=swap');
-    
-    .back-btn {
-        position: absolute; top: 25px; left: 25px;
-        background: #e67e22; /* 橘色 */
-        color: white; border: none; padding: 10px 20px;
-        border-radius: 50px; cursor: pointer; font-weight: bold;
-    }
-    .section-title { 
-        font-family: 'M PLUS Rounded 1c', sans-serif; 
-        color: #4a3f35; font-size: 2.2rem; text-align: center; margin: 50px 0;
-    }
-</style>
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>添興家具｜詳細作品展示</title>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'M PLUS Rounded 1c', sans-serif; background-color: #f5efe6; margin: 0; padding: 20px; }
+        .back-btn {
+            position: absolute; top: 25px; left: 25px;
+            background: #e67e22; /* 橘色 */
+            color: white; border: none; padding: 10px 20px;
+            border-radius: 50px; cursor: pointer; font-weight: bold;
+        }
+        .section-title { 
+            color: #4a3f35; font-size: 2.2rem; text-align: center; margin: 80px 0 40px 0;
+        }
+        /* 圖片網格區 */
+        .gallery {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px; max-width: 1000px; margin: 0 auto;
+        }
+        .card { background: #fff; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .card img { width: 100%; height: auto; display: block; }
+    </style>
+</head>
+<body>
 
-<button class="back-btn" onclick="window.location.href='index.html'">返回首頁</button>
-<h2 class="section-title">2025/10 客製架高床</h2>
+    <button class="back-btn" onclick="window.location.href='index.html'">返回首頁</button>
+    <h2 class="section-title">2025/10 客製架高床</h2>
+
+    <div class="gallery">
+        <div class="card"><img src="1.jpg" alt="作品細節1"></div>
+        <div class="card"><img src="2.jpg" alt="作品細節2"></div>
+        <div class="card"><img src="3.jpg" alt="作品細節3"></div>
+        <div class="card"><img src="4.jpg" alt="作品細節4"></div>
+        <div class="card"><img src="5.jpg" alt="作品細節5"></div>
+        <div class="card"><img src="6.jpg" alt="作品細節6"></div>
+    </div>
+
+</body>
+</html>
