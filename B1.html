@@ -2,7 +2,6 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>添興家具｜詳細作品展示</title>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700&display=swap" rel="stylesheet">
     <style>
@@ -14,10 +13,8 @@
         .card { background: #fff; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; }
         .card img { width: 100%; aspect-ratio: 4/3; object-fit: cover; }
         .video-container { max-width: 800px; margin: 50px auto; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        
-        /* 燈箱：箭頭固定在螢幕兩側，不覆蓋原始圖片 */
         #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; justify-content: center; align-items: center; }
-        #lightbox img { max-width: 80%; max-height: 80%; border-radius: 5px; transition: transform 0.2s; cursor: zoom-in; }
+        #lightbox img { max-width: 80%; max-height: 80%; transition: transform 0.2s; cursor: zoom-in; }
         .nav-btn { position: fixed; top: 50%; transform: translateY(-50%); color: white; font-size: 3rem; cursor: pointer; padding: 20px; z-index: 1001; }
         #prev { left: 20px; } #next { right: 20px; }
     </style>
@@ -26,7 +23,6 @@
     <button class="back-btn" onclick="window.location.href='index.html'">返回首頁</button>
     <img src="0-logo-02.png" alt="添興家具" class="header-logo">
     <h2 class="section-title">2025/10 客製架高床</h2>
-
     <div class="gallery">
         <div class="card" onclick="openLightbox(0)"><img src="1.jpg" alt="1"></div>
         <div class="card" onclick="openLightbox(1)"><img src="2.jpg" alt="2"></div>
@@ -35,34 +31,23 @@
         <div class="card" onclick="openLightbox(4)"><img src="5.jpg" alt="5"></div>
         <div class="card" onclick="openLightbox(5)"><img src="6.jpg" alt="6"></div>
     </div>
-
     <div class="video-container">
         <video width="100%" controls>
             <source src="myvideo.mp4" type="video/mp4">
         </video>
     </div>
-
     <div id="lightbox" onclick="closeLightbox()">
         <span class="nav-btn" id="prev" onclick="changeImage(-1); event.stopPropagation();">&#10094;</span>
         <img id="lightbox-img" src="" alt="放大圖" onclick="toggleZoom(event)">
         <span class="nav-btn" id="next" onclick="changeImage(1); event.stopPropagation();">&#10095;</span>
     </div>
-
     <script>
         var images = ["1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg", "6.jpg"];
         var currentIndex = 0; var scale = 1;
         function openLightbox(index) { currentIndex = index; document.getElementById('lightbox-img').src = images[currentIndex]; document.getElementById('lightbox').style.display = 'flex'; }
         function closeLightbox() { document.getElementById('lightbox').style.display = 'none'; scale = 1; document.getElementById('lightbox-img').style.transform = 'scale(1)'; }
         function changeImage(step) { currentIndex = (currentIndex + step + images.length) % images.length; document.getElementById('lightbox-img').src = images[currentIndex]; scale = 1; document.getElementById('lightbox-img').style.transform = 'scale(1)'; }
-        
-        // 滾輪放大功能
-        window.addEventListener('wheel', (e) => {
-            if(document.getElementById('lightbox').style.display === 'flex') {
-                e.preventDefault();
-                scale += e.deltaY * -0.001; scale = Math.min(Math.max(1, scale), 3);
-                document.getElementById('lightbox-img').style.transform = `scale(${scale})`;
-            }
-        }, {passive: false});
+        window.addEventListener('wheel', (e) => { if(document.getElementById('lightbox').style.display === 'flex') { e.preventDefault(); scale += e.deltaY * -0.001; scale = Math.min(Math.max(1, scale), 3); document.getElementById('lightbox-img').style.transform = `scale(${scale})`; } }, {passive: false});
     </script>
 </body>
 </html>
