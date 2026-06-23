@@ -13,15 +13,13 @@
         .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 1000px; margin: 0 auto; }
         .card { background: #fff; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; }
         .card img { width: 100%; aspect-ratio: 4/3; object-fit: cover; }
-        
-        /* 影片區塊 */
         .video-container { max-width: 800px; margin: 50px auto; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         
-        /* 燈箱與箭頭 */
-        #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; }
-        #lightbox img { max-width: 85%; max-height: 80%; border-radius: 5px; }
-        .nav-btn { position: absolute; top: 50%; transform: translateY(-50%); color: white; font-size: 3rem; cursor: pointer; padding: 20px; z-index: 1001; }
-        #prev { left: 10px; } #next { right: 10px; }
+        /* 燈箱：箭頭固定在螢幕兩側，不覆蓋原始圖片 */
+        #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; justify-content: center; align-items: center; }
+        #lightbox img { max-width: 80%; max-height: 80%; border-radius: 5px; transition: transform 0.2s; cursor: zoom-in; }
+        .nav-btn { position: fixed; top: 50%; transform: translateY(-50%); color: white; font-size: 3rem; cursor: pointer; padding: 20px; z-index: 1001; }
+        #prev { left: 20px; } #next { right: 20px; }
     </style>
 </head>
 <body>
@@ -40,30 +38,31 @@
 
     <div class="video-container">
         <video width="100%" controls>
-            <source src="上下舖L型雙層床（修改） (1).mov" type="video/mp4">
-            您的瀏覽器不支援影片播放。
+            <source src="myvideo.mp4" type="video/mp4">
         </video>
     </div>
 
     <div id="lightbox" onclick="closeLightbox()">
         <span class="nav-btn" id="prev" onclick="changeImage(-1); event.stopPropagation();">&#10094;</span>
-        <img id="lightbox-img" src="" alt="放大圖">
+        <img id="lightbox-img" src="" alt="放大圖" onclick="toggleZoom(event)">
         <span class="nav-btn" id="next" onclick="changeImage(1); event.stopPropagation();">&#10095;</span>
     </div>
 
     <script>
         var images = ["1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg", "6.jpg"];
-        var currentIndex = 0;
-        function openLightbox(index) {
-            currentIndex = index;
-            document.getElementById('lightbox-img').src = images[currentIndex];
-            document.getElementById('lightbox').style.display = 'flex';
-        }
-        function closeLightbox() { document.getElementById('lightbox').style.display = 'none'; }
-        function changeImage(step) {
-            currentIndex = (currentIndex + step + images.length) % images.length;
-            document.getElementById('lightbox-img').src = images[currentIndex];
-        }
+        var currentIndex = 0; var scale = 1;
+        function openLightbox(index) { currentIndex = index; document.getElementById('lightbox-img').src = images[currentIndex]; document.getElementById('lightbox').style.display = 'flex'; }
+        function closeLightbox() { document.getElementById('lightbox').style.display = 'none'; scale = 1; document.getElementById('lightbox-img').style.transform = 'scale(1)'; }
+        function changeImage(step) { currentIndex = (currentIndex + step + images.length) % images.length; document.getElementById('lightbox-img').src = images[currentIndex]; scale = 1; document.getElementById('lightbox-img').style.transform = 'scale(1)'; }
+        
+        // 滾輪放大功能
+        window.addEventListener('wheel', (e) => {
+            if(document.getElementById('lightbox').style.display === 'flex') {
+                e.preventDefault();
+                scale += e.deltaY * -0.001; scale = Math.min(Math.max(1, scale), 3);
+                document.getElementById('lightbox-img').style.transform = `scale(${scale})`;
+            }
+        }, {passive: false});
     </script>
 </body>
 </html>
