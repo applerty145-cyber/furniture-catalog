@@ -12,17 +12,14 @@
         .section-title { color: #4a3f35; font-size: 1.6rem; text-align: center; margin: 80px 0 40px 0; white-space: nowrap; }
         .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 1000px; margin: 0 auto; }
         .card { background: #fff; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; }
-        .card img { width: 100%; aspect-ratio: 4/3; object-fit: cover; pointer-events: none; }
+        .card img { width: 100%; aspect-ratio: 4/3; object-fit: cover; }
         .video-container { max-width: 800px; margin: 50px auto; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         
-        /* 燈箱修改：將容器與圖片分開處理 */
-        #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; justify-content: center; align-items: center; }
-        #lightbox-container { position: relative; display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; }
-        #lightbox-img { max-width: 85%; max-height: 85%; transition: transform 0.2s; cursor: zoom-in; }
-        
-        .nav-btn { position: fixed; top: 50%; transform: translateY(-50%); color: white; font-size: 3rem; cursor: pointer; padding: 20px; z-index: 1001; }
-        #prev { left: 10px; } #next { right: 10px; }
-        @media (max-width: 767px) { .nav-btn { display: none !important; } }
+        /* 燈箱優化：強制滿版並優化層級 */
+        #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 9999; justify-content: center; align-items: center; }
+        #lightbox-img { max-width: 90%; max-height: 80%; border-radius: 5px; touch-action: none; }
+        .nav-btn { position: absolute; top: 50%; transform: translateY(-50%); color: white; font-size: 3rem; cursor: pointer; padding: 20px; }
+        #prev { left: 5px; } #next { right: 5px; }
     </style>
 </head>
 <body>
@@ -31,50 +28,39 @@
     <h2 class="section-title">2025/10 客製架高床</h2>
 
     <div class="gallery">
-        <div class="card" onclick="openLightbox(0); event.stopPropagation();" ontouchstart="openLightbox(0); event.stopPropagation();"><img src="1.jpg" alt="1"></div>
-        <div class="card" onclick="openLightbox(1); event.stopPropagation();" ontouchstart="openLightbox(1); event.stopPropagation();"><img src="2.jpg" alt="2"></div>
-        <div class="card" onclick="openLightbox(2); event.stopPropagation();" ontouchstart="openLightbox(2); event.stopPropagation();"><img src="3.jpg" alt="3"></div>
-        <div class="card" onclick="openLightbox(3); event.stopPropagation();" ontouchstart="openLightbox(3); event.stopPropagation();"><img src="4.jpg" alt="4"></div>
-        <div class="card" onclick="openLightbox(4); event.stopPropagation();" ontouchstart="openLightbox(4); event.stopPropagation();"><img src="5.jpg" alt="5"></div>
-        <div class="card" onclick="openLightbox(5); event.stopPropagation();" ontouchstart="openLightbox(5); event.stopPropagation();"><img src="6.jpg" alt="6"></div>
+        <div class="card" onclick="openLightbox(0)"><img src="1.jpg" alt="1"></div>
+        <div class="card" onclick="openLightbox(1)"><img src="2.jpg" alt="2"></div>
+        <div class="card" onclick="openLightbox(2)"><img src="3.jpg" alt="3"></div>
+        <div class="card" onclick="openLightbox(3)"><img src="4.jpg" alt="4"></div>
+        <div class="card" onclick="openLightbox(4)"><img src="5.jpg" alt="5"></div>
+        <div class="card" onclick="openLightbox(5)"><img src="6.jpg" alt="6"></div>
     </div>
 
     <div class="video-container">
-        <video width="100%" controls>
-            <source src="myvideo.mp4" type="video/mp4">
-        </video>
+        <video width="100%" controls><source src="上下舖L型雙層床（修改） (1).mov" type="video/mp4"></video>
     </div>
 
-    <div id="lightbox" onclick="closeLightbox()">
-        <div id="lightbox-container" onclick="event.stopPropagation()">
-            <span class="nav-btn" id="prev" onclick="changeImage(-1); event.stopPropagation();">&#10094;</span>
-            <img id="lightbox-img" src="" alt="放大圖">
-            <span class="nav-btn" id="next" onclick="changeImage(1); event.stopPropagation();">&#10095;</span>
-        </div>
+    <div id="lightbox">
+        <span class="nav-btn" id="prev" onclick="changeImage(-1)">&#10094;</span>
+        <img id="lightbox-img" src="" alt="放大圖">
+        <span class="nav-btn" id="next" onclick="changeImage(1)">&#10095;</span>
+        <div style="position: absolute; top: 20px; right: 20px; color: white; font-size: 2rem; cursor: pointer;" onclick="closeLightbox()">✕</div>
     </div>
 
     <script>
         var images = ["1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg", "6.jpg"];
-        var currentIndex = 0; var scale = 1;
+        var currentIndex = 0;
+        
         function openLightbox(index) {
             currentIndex = index;
             document.getElementById('lightbox-img').src = images[currentIndex];
             document.getElementById('lightbox').style.display = 'flex';
         }
-        function closeLightbox() { document.getElementById('lightbox').style.display = 'none'; scale = 1; document.getElementById('lightbox-img').style.transform = 'scale(1)'; }
+        function closeLightbox() { document.getElementById('lightbox').style.display = 'none'; }
         function changeImage(step) {
             currentIndex = (currentIndex + step + images.length) % images.length;
             document.getElementById('lightbox-img').src = images[currentIndex];
-            scale = 1; document.getElementById('lightbox-img').style.transform = 'scale(1)';
         }
-        window.addEventListener('wheel', (e) => {
-            if(document.getElementById('lightbox').style.display === 'flex') {
-                e.preventDefault();
-                scale += e.deltaY * -0.001;
-                scale = Math.min(Math.max(1, scale), 3);
-                document.getElementById('lightbox-img').style.transform = `scale(${scale})`;
-            }
-        }, {passive: false});
     </script>
 </body>
 </html>
