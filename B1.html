@@ -15,13 +15,18 @@
         .card img { width: 100%; aspect-ratio: 4/3; object-fit: cover; pointer-events: none; }
         .video-container { max-width: 800px; margin: 50px auto; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         
-        /* 燈箱優化：強制滿版並優化層級 */
+        /* 燈箱優化：排版與防重疊 */
         #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.98); z-index: 99999; justify-content: center; align-items: center; }
-        #lightbox-img { max-width: 90vw; max-height: 80vh; border-radius: 5px; object-fit: contain; }
-        .nav-btn { position: absolute; top: 50%; transform: translateY(-50%); color: white; font-size: 3rem; cursor: pointer; padding: 20px; z-index: 100000; }
-        #prev { left: 5px; } #next { right: 5px; }
+        .lightbox-content { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 0 10px; box-sizing: border-box; }
+        
+        /* 圖片最大寬度扣除兩側箭頭空間，確保絕不重疊 */
+        #lightbox-img { max-width: calc(100vw - 120px); max-height: 80vh; object-fit: contain; transform-origin: center; transition: transform 0.1s ease-out; }
+        
+        /* 箭頭半透明樣式 */
+        .nav-btn { color: rgba(255, 255, 255, 0.3); font-size: 3.5rem; cursor: pointer; user-select: none; padding: 10px; transition: color 0.3s; }
+        .nav-btn:hover { color: rgba(255, 255, 255, 0.8); } /* 電腦版滑鼠摸到會變亮 */
+        
         .close-btn { position: absolute; top: 20px; right: 20px; color: white; font-size: 2.5rem; cursor: pointer; z-index: 100000; width: 50px; height: 50px; text-align: center; line-height: 50px; font-weight: bold; }
-        @media (max-width: 767px) { .nav-btn { display: none !important; } }
     </style>
 </head>
 <body>
@@ -46,32 +51,32 @@
 
     <div id="lightbox">
         <div class="close-btn" onclick="closeItem(event)">✕</div>
-        <span class="nav-btn" id="prev" onclick="changeImage(event, -1)">&#10094;</span>
-        <img id="lightbox-img" src="" alt="放大圖">
-        <span class="nav-btn" id="next" onclick="changeImage(event, 1)">&#10095;</span>
+        <div class="lightbox-content">
+            <span class="nav-btn" id="prev" onclick="changeImage(event, -1)">&#10094;</span>
+            <img id="lightbox-img" src="" alt="放大圖">
+            <span class="nav-btn" id="next" onclick="changeImage(event, 1)">&#10095;</span>
+        </div>
     </div>
 
     <script>
         var images = ["1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg", "6.jpg"];
         var currentIndex = 0;
+        var scale = 1;
+        var startDist = 0;
         
         function openItem(e, index) {
-            // 阻擋手機雙重點擊或冒泡事件
             if(e) { e.preventDefault(); e.stopPropagation(); }
-            
             currentIndex = index;
+            scale = 1; // 每次打開重置放大倍率
+            document.getElementById('lightbox-img').style.transform = `scale(${scale})`;
             document.getElementById('lightbox-img').src = images[currentIndex];
             document.getElementById('lightbox').style.display = 'flex';
-            
-            // 【重要修復】：打開放大圖時，把底下的影片隱藏，防止手機瀏覽器畫面崩潰閃退
             document.getElementById('my-video-box').style.visibility = 'hidden';
         }
         
         function closeItem(e) {
             if(e) { e.preventDefault(); e.stopPropagation(); }
             document.getElementById('lightbox').style.display = 'none';
-            
-            // 關閉放大圖時，把影片顯示回來
             document.getElementById('my-video-box').style.visibility = 'visible';
         }
 
@@ -79,7 +84,43 @@
             if(e) { e.preventDefault(); e.stopPropagation(); }
             currentIndex = (currentIndex + step + images.length) % images.length;
             document.getElementById('lightbox-img').src = images[currentIndex];
+            scale = 1; // 換照片時重置放大倍率
+            document.getElementById('lightbox-img').style.transform = `scale(${scale})`;
         }
+
+        // --- 電腦版：滑鼠滾輪放大 ---
+        window.addEventListener('wheel', (e) => {
+            if(document.getElementById('lightbox').style.display === 'flex') {
+                e.preventDefault();
+                scale += e.deltaY * -0.001;
+                scale = Math.min(Math.max(1, scale), 4); // 限制最多放大4倍
+                document.getElementById('lightbox-img').style.transform = `scale(${scale})`;
+            }
+        }, {passive: false});
+
+        // --- 手機版：雙指縮放功能 ---
+        var lightboxBox = document.getElementById('lightbox');
+        lightboxBox.addEventListener('touchstart', (e) => {
+            if(e.touches.length === 2) {
+                // 記錄兩根手指一開始的距離
+                startDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+            }
+        }, {passive: false});
+
+        lightboxBox.addEventListener('touchmove', (e) => {
+            if(document.getElementById('lightbox').style.display === 'flex') {
+                if(e.touches.length === 2) {
+                    e.preventDefault(); // 防止畫面跟著亂滾動
+                    // 計算兩指移動後的新距離
+                    var dist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+                    scale = Math.min(Math.max(1, scale * (dist / startDist)), 4);
+                    document.getElementById('lightbox-img').style.transform = `scale(${scale})`;
+                    startDist = dist; // 更新距離
+                } else if (scale > 1) {
+                    e.preventDefault(); // 圖片放大狀態下，單指拖動防止網頁背景滾動
+                }
+            }
+        }, {passive: false});
     </script>
 </body>
 </html>
