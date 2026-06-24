@@ -6,20 +6,22 @@
     <title>添興家具｜詳細作品展示</title>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'M PLUS Rounded 1c', sans-serif; background-color: #f5efe6; margin: 0; padding: 20px; }
+        body { font-family: 'M PLUS Rounded 1c', sans-serif; background-color: #f5efe6; margin: 0; padding: 20px; -webkit-tap-highlight-color: transparent; }
         .header-logo { position: absolute; top: 25px; right: 25px; max-width: 120px; }
         .back-btn { position: absolute; top: 25px; left: 25px; background: #e67e22; color: white; border: none; padding: 10px 20px; border-radius: 50px; cursor: pointer; font-weight: bold; }
         .section-title { color: #4a3f35; font-size: 1.6rem; text-align: center; margin: 80px 0 40px 0; white-space: nowrap; }
         .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 1000px; margin: 0 auto; }
         .card { background: #fff; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1); cursor: pointer; }
-        .card img { width: 100%; aspect-ratio: 4/3; object-fit: cover; }
+        .card img { width: 100%; aspect-ratio: 4/3; object-fit: cover; pointer-events: none; }
         .video-container { max-width: 800px; margin: 50px auto; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         
         /* 燈箱優化：強制滿版並優化層級 */
-        #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 9999; justify-content: center; align-items: center; }
-        #lightbox-img { max-width: 90%; max-height: 80%; border-radius: 5px; touch-action: none; }
-        .nav-btn { position: absolute; top: 50%; transform: translateY(-50%); color: white; font-size: 3rem; cursor: pointer; padding: 20px; }
+        #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.98); z-index: 99999; justify-content: center; align-items: center; }
+        #lightbox-img { max-width: 90vw; max-height: 80vh; border-radius: 5px; object-fit: contain; }
+        .nav-btn { position: absolute; top: 50%; transform: translateY(-50%); color: white; font-size: 3rem; cursor: pointer; padding: 20px; z-index: 100000; }
         #prev { left: 5px; } #next { right: 5px; }
+        .close-btn { position: absolute; top: 20px; right: 20px; color: white; font-size: 2.5rem; cursor: pointer; z-index: 100000; width: 50px; height: 50px; text-align: center; line-height: 50px; font-weight: bold; }
+        @media (max-width: 767px) { .nav-btn { display: none !important; } }
     </style>
 </head>
 <body>
@@ -28,36 +30,53 @@
     <h2 class="section-title">2025/10 客製架高床</h2>
 
     <div class="gallery">
-        <div class="card" onclick="openLightbox(0)"><img src="1.jpg" alt="1"></div>
-        <div class="card" onclick="openLightbox(1)"><img src="2.jpg" alt="2"></div>
-        <div class="card" onclick="openLightbox(2)"><img src="3.jpg" alt="3"></div>
-        <div class="card" onclick="openLightbox(3)"><img src="4.jpg" alt="4"></div>
-        <div class="card" onclick="openLightbox(4)"><img src="5.jpg" alt="5"></div>
-        <div class="card" onclick="openLightbox(5)"><img src="6.jpg" alt="6"></div>
+        <div class="card" onclick="openItem(event, 0)"><img src="1.jpg" alt="1"></div>
+        <div class="card" onclick="openItem(event, 1)"><img src="2.jpg" alt="2"></div>
+        <div class="card" onclick="openItem(event, 2)"><img src="3.jpg" alt="3"></div>
+        <div class="card" onclick="openItem(event, 3)"><img src="4.jpg" alt="4"></div>
+        <div class="card" onclick="openItem(event, 4)"><img src="5.jpg" alt="5"></div>
+        <div class="card" onclick="openItem(event, 5)"><img src="6.jpg" alt="6"></div>
     </div>
 
-    <div class="video-container">
-        <video width="100%" controls><source src="上下舖L型雙層床（修改） (1).mov" type="video/mp4"></video>
+    <div class="video-container" id="my-video-box">
+        <video width="100%" controls>
+            <source src="上下舖L型雙層床（修改） (1).mov" type="video/mp4">
+        </video>
     </div>
 
     <div id="lightbox">
-        <span class="nav-btn" id="prev" onclick="changeImage(-1)">&#10094;</span>
+        <div class="close-btn" onclick="closeItem(event)">✕</div>
+        <span class="nav-btn" id="prev" onclick="changeImage(event, -1)">&#10094;</span>
         <img id="lightbox-img" src="" alt="放大圖">
-        <span class="nav-btn" id="next" onclick="changeImage(1)">&#10095;</span>
-        <div style="position: absolute; top: 20px; right: 20px; color: white; font-size: 2rem; cursor: pointer;" onclick="closeLightbox()">✕</div>
+        <span class="nav-btn" id="next" onclick="changeImage(event, 1)">&#10095;</span>
     </div>
 
     <script>
         var images = ["1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg", "6.jpg"];
         var currentIndex = 0;
         
-        function openLightbox(index) {
+        function openItem(e, index) {
+            // 阻擋手機雙重點擊或冒泡事件
+            if(e) { e.preventDefault(); e.stopPropagation(); }
+            
             currentIndex = index;
             document.getElementById('lightbox-img').src = images[currentIndex];
             document.getElementById('lightbox').style.display = 'flex';
+            
+            // 【重要修復】：打開放大圖時，把底下的影片隱藏，防止手機瀏覽器畫面崩潰閃退
+            document.getElementById('my-video-box').style.visibility = 'hidden';
         }
-        function closeLightbox() { document.getElementById('lightbox').style.display = 'none'; }
-        function changeImage(step) {
+        
+        function closeItem(e) {
+            if(e) { e.preventDefault(); e.stopPropagation(); }
+            document.getElementById('lightbox').style.display = 'none';
+            
+            // 關閉放大圖時，把影片顯示回來
+            document.getElementById('my-video-box').style.visibility = 'visible';
+        }
+
+        function changeImage(e, step) {
+            if(e) { e.preventDefault(); e.stopPropagation(); }
             currentIndex = (currentIndex + step + images.length) % images.length;
             document.getElementById('lightbox-img').src = images[currentIndex];
         }
