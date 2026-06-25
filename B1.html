@@ -6,20 +6,7 @@
     <title>添興家具｜詳細作品展示</title>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700&display=swap" rel="stylesheet">
     <style>
-        /* --- 修改這裡：加入方格紙紋路背景 --- */
-        body { 
-            font-family: 'M PLUS Rounded 1c', sans-serif; 
-            background-color: #f2eadd; /* 溫暖的復古紙張底色 */
-            background-image: 
-                linear-gradient(rgba(165, 140, 115, 0.15) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(165, 140, 115, 0.15) 1px, transparent 1px);
-            background-size: 25px 25px; /* 控制方格的大小，數字越大格子越大 */
-            margin: 0; 
-            padding: 20px; 
-            -webkit-tap-highlight-color: transparent; 
-            overscroll-behavior-y: none; 
-        }
-
+        body { font-family: 'M PLUS Rounded 1c', sans-serif; background-color: #f5efe6; margin: 0; padding: 20px; -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
         .header-logo { position: absolute; top: 25px; right: 25px; max-width: 120px; }
         .back-btn { position: absolute; top: 25px; left: 25px; background: #e67e22; color: white; border: none; padding: 10px 20px; border-radius: 50px; cursor: pointer; font-weight: bold; }
         .section-title { color: #4a3f35; font-size: 1.6rem; text-align: center; margin: 80px 0 40px 0; white-space: nowrap; }
@@ -28,6 +15,7 @@
         .card img { width: 100%; aspect-ratio: 4/3; object-fit: cover; pointer-events: none; }
         .video-container { max-width: 800px; margin: 50px auto; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         
+        /* 燈箱與圖片優化：改為 height: 100% 解決 iOS Safari 偏下問題 */
         #lightbox { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 99999; justify-content: center; align-items: center; overflow: hidden; touch-action: none; }
         #lightbox-img { max-width: 100vw; max-height: 85vh; object-fit: contain; margin: auto; cursor: grab; transform-origin: center; transition: transform 0.1s ease-out; }
         #lightbox-img:active { cursor: grabbing; }
@@ -221,7 +209,7 @@
                 translateX = lastTranslateX + (e.touches[0].clientX - startX);
                 translateY = lastTranslateY + (e.touches[0].clientY - startY);
                 
-                // 防溢出計算
+                // 【新增：防溢出計算】限制拖曳範圍，不讓圖片跑出畫面
                 let maxTx = (window.innerWidth * scale - window.innerWidth) / 2;
                 let maxTy = (window.innerHeight * scale - window.innerHeight) / 2;
                 translateX = Math.max(-maxTx, Math.min(maxTx, translateX));
@@ -245,6 +233,7 @@
                 lastTranslateY = translateY;
             }
             
+            // 計算這次觸控點擊有沒有移動 (用來區分是滑動還是點擊)
             let touchEndX = e.changedTouches[0].clientX;
             let touchEndY = e.changedTouches[0].clientY;
             let moveDist = Math.hypot(touchEndX - touchStartX, touchEndY - touchStartY);
@@ -252,10 +241,12 @@
             let currentTime = new Date().getTime();
             let tapLength = currentTime - lastTapTime;
             
+            // 【新增：雙擊偵測】0.3秒內連續點兩下，且沒有大範圍滑動
             if (tapLength < 300 && tapLength > 0 && moveDist < 10 && e.changedTouches.length === 1) {
                 resetZoom();
                 e.preventDefault();
             } 
+            // 如果沒放大，且滑動距離超過 50px 就切換照片
             else if (e.changedTouches.length === 1 && scale === 1) {
                 let diff = touchStartX - touchEndX;
                 if (diff > 50) {
